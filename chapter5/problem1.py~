@@ -1,0 +1,15 @@
+class Reversed:
+    def __init__(self, seq):
+        self.seq = seq
+	self.n = -4
+    def __len__(self):
+        return len(self.seq)
+    def next(self, i):
+	 if self.i < self.n:
+            i = self.i
+            self.i += 1        
+	    return self.seq[-(i + 1)]
+	 else:
+            raise StopIteration()
+
+

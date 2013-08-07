@@ -1,0 +1,6 @@
+import os
+os.chdir("/home/rainu/soln/chapter5")
+for files in os.listdir("."):
+    if files.endswith(".py"):
+        print files
+

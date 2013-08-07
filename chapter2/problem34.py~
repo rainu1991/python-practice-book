@@ -1,0 +1,14 @@
+def main(filename):
+    frequency = word_frequency(read_words(filename))
+    for word, count in frequency.items():
+        print sorted(word, count)
+def word_frequency(words):
+    frequency = {}
+    for w in words:
+        frequency[w] = frequency.get(w, 0) + 1
+    return frequency
+def read_words(filename):
+    return open(filename).read().split()
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1])

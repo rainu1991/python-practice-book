@@ -1,0 +1,271 @@
+
+Stack Exchange sign up  log in  careers 2.0 
+
+
+Stack Overflow
+Questions
+Tags
+Tour
+Users
+Ask Question
+Tell me more × Stack Overflow is a question and answer site for professional and enthusiast programmers. It's 100% free, no registration required.
+Easy Way to Split a Large Text File?
+
+up vote
+30
+down vote
+favorite
+12
+I've got a large (by number of lines) plain text file that I'd like to split into smaller files, also by number of lines. So if my file has around 2M lines, I'd like to split it up into 10 files that contain 200k lines, or 100 files that contain 20k lines (plus one file with the remainder; being evenly divisible doesn't matter).
+
+I could do this fairly easily in Python but I'm wondering if there's any kind of ninja way to do this using bash and unix utils (as opposed to manually looping and counting / partitioning lines).
+
+bash unix file unix-utils
+share|improve this question
+asked Jan 6 '10 at 22:40
+
+danben
+29.4k65589
+Out of curiousity, after they're "split", how does one "combine" them? Something like "cat part2 >> part1"? Or is there another ninja utility? mind updating your question? – dlamotte Jan 6 '10 at 22:47
+1	  
+To put it back together, cat part* > original – Mark Byers Jan 6 '10 at 22:49
+4	  
+yes cat is short for concatenate. In general apropos is useful for finding appropriate commands. I.E. see the output of: apropos split – pixelbeat Jan 6 '10 at 22:51
+@pixelbeat That is pretty cool, thanks – danben Jan 6 '10 at 23:00
+As an aside, OS X users should make sure their file contains LINUX or UNIX-style Line breaks/End-Of-Line indicators (LF) instead of MAC OS X - style end-of-line indicators (CR) - the split and csplit commands will not work if your like breaks are Carriage Returns instead of LineFeeds. TextWrangler from BareBones software can help you with this if you're on Mac OS. You can choose how you want your line break characters look. when you save (or Save As...) your text files. – LeberMac Oct 21 '12 at 21:34
+add comment (requires an account with 50 reputation)
+5 Answers activeoldestvotes
+up vote
+70
+down vote
+accepted
+Have you looked at the split command?
+
+$ split --help
+Usage: split [OPTION] [INPUT [PREFIX]]
+Output fixed-size pieces of INPUT to PREFIXaa, PREFIXab, ...; default
+size is 1000 lines, and default PREFIX is `x'.  With no INPUT, or when INPUT
+is -, read standard input.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -a, --suffix-length=N   use suffixes of length N (default 2)
+  -b, --bytes=SIZE        put SIZE bytes per output file
+  -C, --line-bytes=SIZE   put at most SIZE bytes of lines per output file
+  -d, --numeric-suffixes  use numeric suffixes instead of alphabetic
+  -l, --lines=NUMBER      put NUMBER lines per output file
+      --verbose           print a diagnostic to standard error just
+                            before each output file is opened
+      --help     display this help and exit
+      --version  output version information and exit
+You could do something like:
+
+split -l 200000 filename
+share|improve this answer
+answered Jan 6 '10 at 22:44
+
+Mark Byers
+263k30554793
+2	  
+you can also split a file by size: split -b 200m filename (m for megabytes, k for kilobytes or no suffix for bytes) – Abhi Beckert Jun 24 '11 at 7:55
+8	  
+split by size and ensure files are split on line breaks: split -C 200m filename – Clayton Stanley Dec 13 '12 at 2:12
+1	  
+split produces garbled output with Unicode (UTF-16) input. At least on Windows with the version I have. – Vertigo May 24 at 7:57
+add comment (requires an account with 50 reputation)
+
+up vote
+7
+down vote
+How about the split command?
+
+split -l 200000 mybigfile.txt
+share|improve this answer
+edited Jul 19 at 7:18
+
+Steven Penny
+12.7k72260	
+answered Jan 6 '10 at 22:45
+
+Robert Christie
+5,92521321
+add comment (requires an account with 50 reputation)
+up vote
+5
+down vote
+Yes, there is a split command. It will split a file by lines or bytes.
+
+$ split --help
+Usage: split [OPTION]... [INPUT [PREFIX]]
+Output fixed-size pieces of INPUT to PREFIXaa, PREFIXab, ...; default
+size is 1000 lines, and default PREFIX is `x'.  With no INPUT, or when INPUT
+is -, read standard input.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -a, --suffix-length=N   use suffixes of length N (default 2)
+  -b, --bytes=SIZE        put SIZE bytes per output file
+  -C, --line-bytes=SIZE   put at most SIZE bytes of lines per output file
+  -d, --numeric-suffixes  use numeric suffixes instead of alphabetic
+  -l, --lines=NUMBER      put NUMBER lines per output file
+      --verbose           print a diagnostic just before each
+                            output file is opened
+      --help     display this help and exit
+      --version  output version information and exit
+
+SIZE may have a multiplier suffix:
+b 512, kB 1000, K 1024, MB 1000*1000, M 1024*1024,
+GB 1000*1000*1000, G 1024*1024*1024, and so on for T, P, E, Z, Y.
+share|improve this answer
+answered Jan 6 '10 at 22:46
+
+Dave Kirby
+10.7k12142
+Tried georgec@ATGIS25 ~ $ split -l 100000 /cygdrive/P/2012/Job_044_DM_Radio_Propogation/Working/FinalPropogation/TRC_Longl‌​ands/trc_longlands.txt but there are no split files in the directory -where is the output? – GeorgeC Mar 8 '12 at 4:05
+add comment (requires an account with 50 reputation)
+up vote
+5
+down vote
+use split
+
+Split a file into fixed-size pieces, creates output files containing consecutive sections of INPUT (standard input if none is given or INPUT is `-')
+
+Syntax split [options] [INPUT [PREFIX]]
+
+http://ss64.com/bash/split.html
+
+share|improve this answer
+edited Jul 19 at 7:18
+
+Steven Penny
+12.7k72260	
+answered Jan 6 '10 at 22:44
+
+zipcodeman
+1,900520
+add comment (requires an account with 50 reputation)
+up vote
+2
+down vote
+you can also use awk
+
+awk -vc=1 'NR%200000==0{++c}{print $0 > c".txt"}' largefile
+share|improve this answer
+answered Jan 7 '10 at 1:03
+
+ghostdog74
+64.8k666113
+Not bad, but not so far off from what I would have done in Python. – danben Jan 7 '10 at 1:12
+awk -v lines=200000 -v fmt="%d.txt" '{print>sprintf(fmt,1+int((NR-1)/lines))}' – Mark Edgar Jan 7 '10 at 6:52
+add comment (requires an account with 50 reputation)
+Your Answer
+
+ 
+Sign up or log in
+
+Sign up using Google
+Sign up using Facebook
+Sign up using Stack Exchange
+Post as a guest
+
+Name
+
+Email
+
+ 
+By posting your answer, you agree to the privacy policy and terms of service.
+
+Not the answer you're looking for? Browse other questions tagged bash unix file unix-utils or ask your own question.
+tagged
+bash × 24556
+file × 23169
+unix × 14919
+unix-utils × 93
+asked
+3 years ago
+viewed
+20670 times
+active
+17 days ago
+Community Bulletin
+blogPodcast #51 – The Return of CodingHorror
+
+Android OS – Staff and Senior Engineers
+FireEye Cyber Security Pvt
+Bangalore, India / relocation
+Looking for Fresh Graduate Engineers
+Perleybrook Labs
+Palakkad, India
+Sr. Software Engineer - Platform Services
+Internap Network Services
+New York, NY; Atlanta, GA
+Get the weekly newsletter!
+
+Top questions and answers
+Important announcements
+Unanswered questions
+
+see an example newsletter
+
+Linked
+1 Log file has grown huge. Solution needed to open it in main memory
+Related
+6 How to grab an arbitrary chunk from a file on unix/linux
+2 turning text into paginated two-column format and pipe this into less
+0 Extracting n rows of text from a large csv file
+1 How I use the head command for the files in current directory and subdirectories?
+1 How to delete duplicated rows with several files?
+2 view a particular line of a file denoted by a number
+16 Unix: How to split a file into equal parts, without breaking individual lines?
+1 unix:how to sort the bcp file based on the columns using sort utility?
+3 Fastest way to shuffle lines in a file in Linux
+0 In the less pager, is there a way to show more lines before a search result?
+question feed
+about help badges blog chat data legal privacy policy jobs advertising info mobile contact us feedback
+TECHNOLOGY	 LIFE / ARTS	 CULTURE / RECREATION	 SCIENCE	 OTHER
+Stack Overflow
+Server Fault
+Super User
+Web Applications
+Ask Ubuntu
+Webmasters
+Game Development
+TeX - LaTeX
+Programmers
+Unix & Linux
+Ask Different (Apple)
+WordPress Answers
+Geographic Information Systems
+Electrical Engineering
+Android Enthusiasts
+IT Security
+Database Administrators
+Drupal Answers
+SharePoint
+User Experience
+Mathematica
+more (13)
+Photography
+Science Fiction & Fantasy
+Seasoned Advice (cooking)
+Home Improvement
+more (13)
+English Language & Usage
+Skeptics
+Mi Yodeya (Judaism)
+Travel
+Christianity
+Arqade (gaming)
+Bicycles
+Role-playing Games
+more (21)
+Mathematics
+Cross Validated (stats)
+Theoretical Computer Science
+Physics
+MathOverflow
+more (7)
+Stack Apps
+Meta Stack Overflow
+Area 51
+Stack Overflow Careers
+site design / logo © 2013 stack exchange inc; user contributions licensed under cc-wiki with attribution required
+rev 2013.8.4.919

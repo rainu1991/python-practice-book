@@ -1,0 +1,10 @@
+def treemap(a, result=None):
+	if result is None:
+        	result = []
+
+	for x in a:
+		if isinstance(x, list):
+			flatten_list(x*x, result)
+		else:
+			result.append(x)
+	return result

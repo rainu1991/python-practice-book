@@ -1,0 +1,5 @@
+def izip(*iterables):
+    # izip('ABCD', 'xy') --> Ax By
+    iterators = map(iter, iterables)
+    while iterators:
+        yield tuple(map(next, iterators))

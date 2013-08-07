@@ -1,0 +1,152 @@
+$ cat she.txt
+She sells seashells on the seashore;
+The shells that she sells are seashells I'm sure.
+So if she sells seashells on the seashore,
+I'm sure that the shells are seashore shells.
+I cringe whenever I see f = open("file") without exception handling to close the file. The Pythonic way to handle files is with a context manager, i.e. using the with statement. This is covered in the input output Python tutorial. "It is good practice to use the with keyword when dealing with file objects. This has the advantage that the file is properly closed after its suite finishes, even if an exception is raised on the way." – Mark Mikofski Jun 18 at 17:33
+add comment
+up vote
+1
+down vote
+Based on gnibbler top voted answer (Nov 20 '09 at 0:27): this class add head() and tail() method to file object.
+
+class File(file):
+    def head(self, lines_2find=1):
+        self.seek(0)                            #Rewind file
+        return [self.next() for x in xrange(lines_2find)]
+
+    def tail(self, lines_2find=1):  
+        self.seek(0, 2)                         #go to end of file
+        bytes_in_file = self.tell()             
+        lines_found, total_bytes_scanned = 0, 0
+        while (lines_2find+1 > lines_found and
+               bytes_in_file > total_bytes_scanned): 
+            byte_block = min(1024, bytes_in_file-total_bytes_scanned)
+            self.seek(-(byte_block+total_bytes_scanned), 2)
+            total_bytes_scanned += byte_block
+            lines_found += self.read(1024).count('\n')
+        self.seek(-total_bytes_scanned, 2)
+        line_list = list(self.readlines())
+        return line_list[-lines_2find:]
+Usage:
+
+f = File('path/to/file', 'r')
+f.head(3)
+f.tail(3)
+share|improve this answer
+answered Jan 20 '11 at 19:42
+
+fdb
+52428
+add comment
+up vote
+1
+down vote
+most convinient way on my own:
+
+LINE_COUNT = 3
+print [s for (i, s) in enumerate(open('test.txt')) if i < LINE_COUNT]
+Solution based on List Comprehension The function open() supports an iteration interface. The enumerate() covers open() and return tuples (index, item), then we check that we're inside an accepted range (if i < LINE_COUNT) and then simply print the result.
+
+Enjoy the Python. ;)
+
+share|improve this answer
+edited Dec 7 '11 at 9:03
+
+answered Dec 7 '11 at 8:26
+
+Maxim Plaksin
+112
+add comment
+Your Answer
+
+ 
+Sign up or login
+
+Sign up using Google
+Sign up using Facebook
+Sign up using Stack Exchange
+Post as a guest
+
+Name
+
+Email
+
+ 
+By posting your answer, you agree to the privacy policy and terms of service.
+
+Not the answer you're looking for? Browse other questions tagged python file head or ask your own question.
+tagged
+python × 209817
+file × 23218
+head × 314
+asked
+3 years ago
+viewed
+13200 times
+active
+8 months ago
+Community Bulletin
+blogPodcast #51 – The Return of Coding Horror
+
+Related
+661 How do I check if a file exists using Python?
+130 Python: read file line by line into array
+3 most efficient way to get first and last line of file python
+5 Efficient way to read a specific line number of a file. (BONUS: Python Manual Misprint)
+1 python head, tail and backward read by lines of a text file
+0 Reading files in parallel in python
+353 Why is reading lines from stdin much slower in C++ than Python?
+5 Efficiency of line by line file reading in Python
+2 Python. Read file by line from a point midway through (by byte)
+0 python file read with different size of lines
+question feed
+about help badges blog chat data legal privacy policy jobs advertising info mobile contact us feedback
+TECHNOLOGY	 LIFE / ARTS	 CULTURE / RECREATION	 SCIENCE	 OTHER
+Stack Overflow
+Server Fault
+Super User
+Web Applications
+Ask Ubuntu
+Webmasters
+Game Development
+TeX - LaTeX
+Programmers
+Unix & Linux
+Ask Different (Apple)
+WordPress Answers
+Geographic Information Systems
+Electrical Engineering
+Android Enthusiasts
+IT Security
+Database Administrators
+Drupal Answers
+SharePoint
+User Experience
+Mathematica
+more (13)
+Photography
+Science Fiction & Fantasy
+Seasoned Advice (cooking)
+Home Improvement
+more (13)
+English Language & Usage
+Skeptics
+Mi Yodeya (Judaism)
+Travel
+Christianity
+Arqade (gaming)
+Bicycles
+Role-playing Games
+more (21)
+Mathematics
+Cross Validated (stats)
+Theoretical Computer Science
+Physics
+MathOverflow
+more (7)
+Stack Apps
+Meta Stack Overflow
+Area 51
+Stack Overflow Careers
+

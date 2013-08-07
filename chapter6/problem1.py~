@@ -1,0 +1,16 @@
+def exp(x, n):
+    """
+    Computes the result of x raised to the power of n.
+
+        >>> exp(2, 3)
+        8
+        >>> exp(3, 2)
+        9
+    """
+    if n == 0:
+        return 0
+    else:
+        return x + exp(x, n-1)
+print x
+
+exp(5, 4)
